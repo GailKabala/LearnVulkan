@@ -1,9 +1,22 @@
+/*
+* LearnVulkan Examples
+*
+* Copyright (C) by engineer1109 - https://github.com/engineer1109/LearnVulkan
+*
+* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+*/
 #include "static_triangle.h"
 #define VERTEX_BUFFER_BIND_ID 0
 StaticTriangle::StaticTriangle(bool debugLayer):VulkanBasicEngine(debugLayer){
     this->zoom=-2.f;
+    this->settings.overlay=true;
 }
-StaticTriangle::~StaticTriangle(){}
+StaticTriangle::~StaticTriangle(){
+    vkDestroyPipeline(device, m_pipeline, nullptr);
+    m_vertexBuffer.destroy();
+    m_indexBuffer.destroy();
+    m_uniformBufferVS.destroy();
+}
 
 void StaticTriangle::prepare(){
     VulkanBasicEngine::prepare();
@@ -30,6 +43,7 @@ void StaticTriangle::render()
     }
     if (!paused || camera.updated){
         updateUniformBuffers(camera.updated);
+        startAutoRotation();
     }
 }
 
@@ -42,6 +56,16 @@ void StaticTriangle::draw()
     VK_CHECK_RESULT(vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE));
     VulkanBasicEngine::submitFrame();
 }
+
+void StaticTriangle::OnUpdateUIOverlay(vks::UIOverlay *overlay)
+{
+    if (overlay->header("Settings")) {
+        if (overlay->button("Auto Rotation")) {
+            m_autoRotation=!m_autoRotation;
+        }
+     }
+}
+
 
 void StaticTriangle::generateVertex(){
     // Setup vertices for a single uv-mapped quad made from two triangles
@@ -245,8 +269,8 @@ void StaticTriangle::preparePipelines()
     pipelineCreateInfo.pStages = shaderStages.data();
 
     //pipelineCreateInfo.subpass=1;
-    shaderStages[0] = loadShader("../data/shaders/01_StaticTriangle/statictriangle.so.vert", VK_SHADER_STAGE_VERTEX_BIT);
-    shaderStages[1] = loadShader("../data/shaders/01_StaticTriangle/statictriangle.so.frag", VK_SHADER_STAGE_FRAGMENT_BIT);
+    shaderStages[0] = loadShader(FS::getAssetPath("shaders/01_StaticTriangle/statictriangle.so.vert"), VK_SHADER_STAGE_VERTEX_BIT);
+    shaderStages[1] = loadShader(FS::getAssetPath("shaders/01_StaticTriangle/statictriangle.so.frag"), VK_SHADER_STAGE_FRAGMENT_BIT);
     VK_CHECK_RESULT(vkCreateGraphicsPipelines(device, pipelineCache, 1, &pipelineCreateInfo, nullptr, &m_pipeline));
 }
 
@@ -295,7 +319,7 @@ void StaticTriangle::buildCommandBuffers()
     VkCommandBufferBeginInfo cmdBufInfo = vks::initializers::commandBufferBeginInfo();
 
     VkClearValue clearValues[2];
-    clearValues[0].color = { { 0.5f, 0.5f, 0.5f, 0.0f } };
+    clearValues[0].color = { { 0.1f, 0.2f, 0.3f, 0.0f } };
     clearValues[1].depthStencil = { 1.0f, 0 };
 
     VkRenderPassBeginInfo renderPassBeginInfo = vks::initializers::renderPassBeginInfo();
@@ -338,5 +362,9 @@ void StaticTriangle::buildCommandBuffers()
     vkQueueWaitIdle(queue);
 }
 
-
+void StaticTriangle::startAutoRotation(){
+    if(m_autoRotation){
+        m_uboVS.model = glm::rotate(m_uboVS.model, glm::radians(0.01f), glm::vec3(0.0f, 1.0f, 0.0f));
+    }
+}
 

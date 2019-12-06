@@ -9,7 +9,7 @@
 #pragma once
 
 #ifdef _WIN32
-#pragma comment(linker, "/subsystem:windows")
+#pragma comment(linker, "/subsystem:console")
 #include <windows.h>
 #include <fcntl.h>
 #include <io.h>
@@ -54,9 +54,11 @@
 #include "camera.hpp"
 #include "benchmark.hpp"
 
-class VulkanExampleBase
+#include "vulkanexamplebase_def.h"
+
+class VK_BASE_EXPORT VulkanExampleBase
 {
-private:	
+protected:
 	// Get window title with example name, device, et.
 	std::string getWindowTitle();
 	/** brief Indicates that the view (position, rotation) has changed and buffers containing camera matrices need to be updated */
@@ -205,7 +207,7 @@ public:
 	// OS specific 
 #if defined(_WIN32)
 	HWND window;
-	HINSTANCE windowInstance;
+    HINSTANCE windowInstance;
 #elif defined(VK_USE_PLATFORM_ANDROID_KHR)
 	// true if application has focused, false if moved to background
 	bool focused = false;

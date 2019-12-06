@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 MESSAGE(STATUS "operation system is ${CMAKE_SYSTEM}")
-project(learnVulkan)
+project(LearnVulkan)
 
 include(${PROJECT_SOURCE_DIR}/cmake/Config.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/GCC.cmake)
@@ -18,8 +18,14 @@ include(${PROJECT_SOURCE_DIR}/cmake/FindOpenMP.cmake)
 #    message(GIT_SUBMODULE)
 #endif()
 
-SET(EXECUTABLE_OUTPUT_PATH  ${PROJECT_SOURCE_DIR}/bin/)
-SET(LIBRARY_OUTPUT_PATH  ${PROJECT_SOURCE_DIR}/bin/)
+if(WIN32)
+    SET(EXECUTABLE_OUTPUT_PATH  ${PROJECT_SOURCE_DIR}/)
+    SET(LIBRARY_OUTPUT_PATH  ${PROJECT_SOURCE_DIR}/)
+else()
+    SET(EXECUTABLE_OUTPUT_PATH  ${PROJECT_SOURCE_DIR}/bin/)
+    SET(LIBRARY_OUTPUT_PATH  ${PROJECT_SOURCE_DIR}/bin/)
+endif()
+
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/include/base)
@@ -27,9 +33,16 @@ include_directories(${PROJECT_SOURCE_DIR}/include/basicengine)
 include_directories(${PROJECT_SOURCE_DIR}/third_party/gli)
 include_directories(${PROJECT_SOURCE_DIR}/third_party/glm)
 include_directories(${PROJECT_SOURCE_DIR}/third_party/imgui)
+include_directories(${PROJECT_SOURCE_DIR}/third_party/stb_image/include)
 link_directories(${PROJECT_SOURCE_DIR}/lib)
 
 include(${PROJECT_SOURCE_DIR}/cmake/FindVulkan.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/FindQt.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/FindAssimp.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/Report.cmake)
+#include(${PROJECT_SOURCE_DIR}/cmake/Softlink.cmake)
+
+add_definitions(-DPROJECT_ABSOLUTE_PATH="${PROJECT_SOURCE_DIR}")
 
 add_subdirectory(src)
 add_subdirectory(examples)
